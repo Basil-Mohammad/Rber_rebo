@@ -32,6 +32,7 @@ The run is resumable: finished runs are skipped if the notebook is restarted in 
         code("import os\nos.makedirs('rber', exist_ok=True)"),
     ]
     for f, s in SRC.items():
+        assert s.strip(), f"{f} is empty: %%writefile needs a non-empty cell body"
         cells.append(code(f"%%writefile rber/{f}\n" + s))
     cells.append(code("%%writefile skills_metaworld.json\n" + SKILLS))
     cells.append(code(f"""import os, json, time, traceback, shutil
