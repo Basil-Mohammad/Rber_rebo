@@ -333,8 +333,10 @@ def llm_report():
     axes[0].set_ylabel("normalized success"); axes[0].set_title("(a) training tasks"); axes[1].set_title("(b) held-out tasks")
     for ax in axes:
         ax.set_xlabel("executed plans"); ax.set_ylim(0, 1.02)
-    axes[1].legend(loc="lower right")
-    fig.tight_layout(w_pad=1.5); fig.savefig(os.path.join(FIG, "llm_curves.pdf")); plt.close(fig)
+    fig.tight_layout(w_pad=1.5)
+    h, l = axes[0].get_legend_handles_labels()
+    fig.legend(h, l, loc="upper center", ncol=5, bbox_to_anchor=(0.5, 0.02))
+    fig.savefig(os.path.join(FIG, "llm_curves.pdf")); plt.close(fig)
 
     def aucf(rr, key="train_norm"):
         return float(np.mean([h[key] for h in rr["hist"]]))
@@ -366,7 +368,16 @@ def llm_report():
             h1 = [by["RBER"][s]["hist"][-1]["held_norm"] for s in cs]; h0 = [by[b][s]["hist"][-1]["held_norm"] for s in cs]
             tests[b] = dict(n=len(cs), dauc=float(np.mean(np.subtract(a1, a0))), p_auc=wilcoxon_paired(a1, a0),
                             dheld=float(np.mean(np.subtract(h1, h0))), p_held=wilcoxon_paired(h1, h0))
-        ks = [k for k in tests if k != "H6"]
+        # exploratory: AUC on a common execution grid (0..6000 executions), RBER vs EXEC
+        egrid = np.linspace(0, 6000, 61)
+        def auce(rr):
+            return float(np.mean(np.interp(egrid, [h["execs"] for h in rr["hist"]], [h["train_norm"] for h in rr["hist"]])))
+        cs = sorted(set(by["EXEC"]) & set(by["RBER"]))
+        de = np.array([auce(by["RBER"][s]) - auce(by["EXEC"][s]) for s in cs])
+        du = np.array([aucf(by["RBER"][s]) - aucf(by["EXEC"][s]) for s in cs])
+        tests["EXECexec"] = dict(d=float(de.mean()), ci=boot_ci(de), p=wilcoxon_paired(de, np.zeros_like(de)),
+                                 wins=int((de > 0).sum()), wins_upd=int((du > 0).sum()), ci_upd=boot_ci(du))
+        ks = [k for k in tests if k not in ("H6", "EXECexec")]
         adj = holm([tests[k]["p_auc"] for k in ks] + [tests[k]["p_held"] for k in ks])
         for i, k in enumerate(ks):
             tests[k]["p_auc_holm"] = float(adj[i]); tests[k]["p_held_holm"] = float(adj[len(ks) + i])
@@ -378,6 +389,11 @@ def llm_report():
             f.write(f"\\newcommand{{\\LLMhalf}}{{{tests['H6']['rber_half']:.3f}}}\n\\newcommand{{\\LLMexecfull}}{{{tests['H6']['exec_full']:.3f}}}\n")
             f.write("\\newcommand{\\LLMverdict}{" + ("supported" if tests["H6"]["holds"] else "not supported") + "}\n")
             fp = lambda p: "<10^{-4}" if p < 1e-4 else f"={p:.3f}"
+            t = tests["EXECexec"]
+            f.write(f"\\newcommand{{\\LLMeaucExec}}{{{t['d']:+.3f}}}\n\\newcommand{{\\LLMeaucExecCI}}{{[{t['ci'][0]:+.3f}, {t['ci'][1]:+.3f}]}}\n"
+                    f"\\newcommand{{\\LLMeaucExecP}}{{{t['p']:.3f}}}\n\\newcommand{{\\LLMwinsExec}}{{{t['wins_upd']}}}\n"
+                    f"\\newcommand{{\\LLMdaucExecCI}}{{[{t['ci_upd'][0]:+.3f}, {t['ci_upd'][1]:+.3f}]}}\n"
+                    f"\\newcommand{{\\LLMpaucExecRaw}}{{{tests['EXEC']['p_auc']:.3f}}}\n")
             for b, tag in (("EXEC", "Exec"), ("STEP", "Step"), ("VERIF", "Verif"), ("RBER-NL", "Nl")):
                 if b in tests:
                     t = tests[b]

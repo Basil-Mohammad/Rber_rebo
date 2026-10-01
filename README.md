@@ -25,6 +25,23 @@ The table shows the independent-skill condition. AUC is the interquartile mean. 
 - **Theory check:** the variance identity of Theorem 1 holds to 1.1e-16.
 - **Limitation:** with strong skill interactions (δ ≥ 0.4), RBER's final performance falls below EXEC. The theory predicts this bias floor.
 
+## Language-model planner (Kaggle, 10 seeds, Qwen2.5-0.5B-Instruct)
+
+| Method | AUC (train) | Final train | Final held-out | Executions |
+|---|---|---|---|---|
+| VERIF | 0.195 | 0.196 | 0.080 | 0 |
+| STEP | 0.678 | 0.768 | 0.521 | 7329 |
+| EXEC | 0.676 | 0.789 | 0.418 | 6663 |
+| **RBER (ours)** | **0.774** | **0.905** | 0.500 | 7694 |
+| RBER-NL (ablation) | 0.802 | 0.917 | 0.562 | 7735 |
+
+All values are normalized to the optimum; the table shows means, and `make_report.py` adds 95% confidence intervals.
+
+- **Pre-registered primary hypothesis H6: supported.** At half of EXEC's executions, RBER reaches 0.823, against EXEC's final 0.789.
+- **AUC versus EXEC:** +0.098, with RBER ahead in 8 of 10 seeds. The uncorrected p is 0.027; after Holm correction it is 0.137, so not significant.
+- **Held-out success (H7):** +0.082 versus EXEC, not significant.
+- **Raw results:** `results/llm/{A,B,C}`.
+
 ## Repository layout
 
 ```
