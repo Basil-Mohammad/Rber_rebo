@@ -7,24 +7,30 @@ GPU session (< 6 h on a T4); seeds are the outer loop so a partial session still
 import json, os
 
 ROOT = os.path.join(os.path.dirname(__file__), "..")
-SRC = {f: open(os.path.join(ROOT, "src", "rber", f)).read() for f in ("__init__.py", "domain.py", "rewards.py", "llm.py")}
+SRC = {f: open(os.path.join(ROOT, "src", "rber", f)).read()
+       for f in ("__init__.py", "domain.py", "rewards.py", "tabular.py", "extension.py", "llm.py")}
 SKILLS = open(os.path.join(ROOT, "data", "skills_metaworld.json")).read()
-SESSIONS = {"A": [0, 1, 2, 3], "B": [4, 5, 6], "C": [7, 8, 9]}
-METHODS = ["VERIF", "STEP", "EXEC", "RBER", "RBER-NL"]
+BASE_METHODS = ["VERIF", "STEP", "EXEC", "RBER", "RBER-NL"]
+# study 1 (done): A-C. Extension study (docs/PREREGISTRATION_extension.md, H12-H13): D-F.
+SESSIONS = {"A": ([0, 1, 2, 3], BASE_METHODS), "B": ([4, 5, 6], BASE_METHODS), "C": ([7, 8, 9], BASE_METHODS),
+            "D": (list(range(10)), ["RBER-LOO"]),
+            "E": ([10, 11, 12, 13, 14], ["EXEC", "RBER", "RBER-LOO"]),
+            "F": ([15, 16, 17, 18, 19], ["EXEC", "RBER", "RBER-LOO"])}
+MINUTES = {"VERIF": 16, "STEP": 36, "EXEC": 24, "RBER": 16, "RBER-NL": 15, "RBER-LOO": 16}
 
 
 def md(s): return {"cell_type": "markdown", "metadata": {}, "source": s}
 def code(s): return {"cell_type": "code", "metadata": {}, "execution_count": None, "outputs": [], "source": s}
 
 
-def notebook(name, seeds):
+def notebook(name, seeds, methods):
     cells = [
         md(f"""# RBER — language-model planner experiments, session {name} (seeds {seeds})
 
 **Settings:** Accelerator → **GPU T4** (x1 is enough), Internet → **On**. Then *Save Version → Save & Run All*.
-Expected time: about {len(seeds) * len(METHODS) * 18 / 60:.1f} h. Output: **`llm_results_session{name}.zip`** (Output tab).
+Expected time: about {len(seeds) * sum(MINUTES[m] for m in methods) / 60:.1f} h. Output: **`llm_results_session{name}.zip`** (Output tab).
 
-What runs: Qwen2.5-0.5B-Instruct planners trained with VERIF, STEP, EXEC, RBER and RBER-NL rewards
+What runs: Qwen2.5-0.5B-Instruct planners trained with {", ".join(methods)} rewards
 (250 updates × 4 tasks × 8 plans, LR 3e-6), seeds {seeds}. Protocol: `docs/PREREGISTRATION_final.md` in the repository.
 The run is resumable: finished runs are skipped if the notebook is restarted in the same session."""),
         code("""!pip -q install -U accelerate "transformers>=4.51"
@@ -42,7 +48,7 @@ from rber.domain import load_library, build_world
 from rber import llm
 
 SEEDS = {seeds}
-METHODS = {METHODS}
+METHODS = {methods}
 OUT = "/kaggle/working/llm_results_session{name}" if os.path.exists("/kaggle") else "llm_results_session{name}"
 os.makedirs(OUT, exist_ok=True)
 LOG = open(os.path.join(OUT, "log.txt"), "a")
@@ -70,7 +76,7 @@ log("Download:", zp)"""))
 
 if __name__ == "__main__":
     os.makedirs(os.path.join(ROOT, "notebooks"), exist_ok=True)
-    for name, seeds in SESSIONS.items():
+    for name, (seeds, methods) in SESSIONS.items():
         p = os.path.join(ROOT, "notebooks", f"kaggle_llm_session{name}.ipynb")
-        json.dump(notebook(name, seeds), open(p, "w"), indent=1, ensure_ascii=False)
+        json.dump(notebook(name, seeds, methods), open(p, "w"), indent=1, ensure_ascii=False)
         print("wrote", p)

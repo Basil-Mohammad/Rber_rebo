@@ -42,6 +42,27 @@ All values are normalized to the optimum; the table shows means, and `make_repor
 - **Held-out success (H7):** +0.082 versus EXEC, not significant.
 - **Raw results:** `results/llm/{A,B,C}`.
 
+## Extension study (pre-registered in `docs/PREREGISTRATION_extension.md`; 20 seeds)
+
+**New methods:**
+- **RBER-LOO:** leave-one-out credit. Each plan's reward uses the outcomes of all other plans in the batch, but never its own.
+- **RBER-C:** contextual credit. A first-order skill model with shrinkage, which removes the bias under skill interactions.
+
+**New baselines:** EXEC-RLOO, EXEC-PPO (critic-free clipped multi-epoch), LSP-lin / LSP-mlp (learned success predictors fitted to final outcomes), and TS-plan (a model-based planning reference, not a policy).
+
+| Hypothesis | Outcome |
+|---|---|
+| H8: RBER-LOO > RBER | not supported (indistinguishable on CPU) |
+| H9: RBER-C removes the interaction bias floor | supported (final success above EXEC at every δ ≤ 0.5) |
+| H10: RBER-LOO > all four stronger baselines | supported (16/16 tests, Holm p < 1e-4) |
+| H11: RBER-C costs ≤ 0.01 AUC without interactions | not supported (cost 0.015–0.020) |
+| H12–H13: LLM, 20 seeds | Kaggle sessions D–F |
+
+```bash
+python scripts/run_cpu.py ext_tune && python scripts/run_cpu.py ext_main      # also: ext_interaction, ext_horizon, ext_kappa
+python tests/test_extension.py
+```
+
 ## Repository layout
 
 ```
@@ -51,6 +72,7 @@ src/rber/            library
   tabular.py         tabular softmax planner + group-normalized policy gradient
   llm.py             Qwen2.5-0.5B-Instruct planner (skill-name scoring) + training loop
   theory.py          exact enumeration of gradient moments (Theorems 1-2)
+  extension.py       RBER-LOO, RBER-C, EXEC-RLOO, EXEC-PPO, LSP-lin/mlp, TS-plan
   stats.py           IQM, bootstrap CIs, probability of improvement, Wilcoxon, Holm
 scripts/
   measure_skills.py  measures the 54 Meta-World v3 skills (100 rollouts each)      [executed]
@@ -60,7 +82,7 @@ scripts/
 data/skills_metaworld.json   measured skill success rates (+ raw outcomes, Wilson CIs)
 results/cpu/                 raw logs of every CPU run (JSONL) and run logs
 results/llm/                 put the Kaggle outputs here (see below)
-notebooks/                   kaggle_llm_session{A,B,C}.ipynb  (GPU, language-model study)
+notebooks/                   kaggle_llm_session{A..F}.ipynb  (GPU; A-C original study, D-F extension)
 docs/                        PREREGISTRATION_final.md, PILOT_HISTORY.md, pilots/ (all pilot pre-registrations)
 tests/                       test_core.py (estimator/theory), test_llm_mechanics.py (tiny random LM)
 ```

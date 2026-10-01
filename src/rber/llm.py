@@ -17,6 +17,7 @@ import numpy as np
 import torch
 
 from .domain import N_OPT, prompt_text
+from .extension import ContextPosterior, loo_batch_multi
 from .rewards import SkillPosterior, batch_rewards, group_advantage
 
 
@@ -147,7 +148,8 @@ def train(w, method, seed, out_dir, model_id="Qwen/Qwen2.5-0.5B-Instruct", lr=3e
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed); exec_rng = np.random.default_rng(seed + 10_000)
     pol = LMPolicy(model_id, lr)
-    post = SkillPosterior(len(w.lib.p)) if method.startswith("RBER") else None
+    ctx = ContextPosterior(len(w.lib.p)) if method in ("RBER-LOO", "RBER-C") else None
+    post = SkillPosterior(len(w.lib.p)) if method.startswith("RBER") and ctx is None else None
     opt_tr = float(np.mean([w.optimum(t) for t in w.train])); opt_he = float(np.mean([w.optimum(t) for t in w.held]))
     hist, execs, t0 = [], 0, time.time()
 
@@ -166,10 +168,15 @@ def train(w, method, seed, out_dir, model_id="Qwen/Qwen2.5-0.5B-Instruct", lr=3e
         tasks = [w.train[i] for i in idx]
         ch = pol.sample(w, tasks, G, rng)
         adv = np.zeros((tasks_per_update, G))
-        snap = copy.deepcopy(post) if post is not None else None   # lag: posterior before the whole batch
-        for ti, t in enumerate(tasks):
-            r, n = batch_rewards(method, w, t, ch[ti], exec_rng, post, reward_post=snap)
-            execs += n; adv[ti] = group_advantage(r)
+        if ctx is not None:                                          # leave-one-out over the whole batch
+            rs, n = loo_batch_multi(method, w, tasks, list(ch), exec_rng, ctx); execs += n
+            for ti, r in enumerate(rs):
+                adv[ti] = group_advantage(r)
+        else:
+            snap = copy.deepcopy(post) if post is not None else None   # lag: posterior before the whole batch
+            for ti, t in enumerate(tasks):
+                r, n = batch_rewards(method, w, t, ch[ti], exec_rng, post, reward_post=snap)
+                execs += n; adv[ti] = group_advantage(r)
         pol.update(w, tasks, ch, adv)
         if u % eval_every == 0 or u == n_updates:
             do_eval(u)

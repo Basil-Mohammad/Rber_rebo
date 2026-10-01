@@ -43,6 +43,14 @@ STY = {
     "RBER-NL": dict(color="#e87ba4", ls=(0, (1, 1)), marker="v", label="RBER-NL (non-lagged)"),
     "RB*":     dict(color="#0b0b0b", ls=":",  marker=None, label=r"RB$^\star$ (oracle)"),
     "VERIF":   dict(color="#8a8985", ls=(0, (3, 2, 1, 2)), marker=None, label="VERIF (no execution)"),
+    # extension study (violet = RBER-LOO, aqua + diamonds = RBER-C; validated with blue/orange, all pairs)
+    "RBER-LOO": dict(color="#4a3aa7", ls=(0, (5, 1.5)), marker="D", label="RBER-LOO (ours)"),
+    "RBER-C":   dict(color="#1baf7a", ls=(0, (5, 1.5)), marker="D", label="RBER-C (contextual, ours)"),
+    "EXEC-RLOO": dict(color="#eb6834", ls=":", marker=None, label="EXEC-RLOO"),
+    "EXEC-PPO":  dict(color="#eb6834", ls="-.", marker=None, label="EXEC-PPO"),
+    "LSP-lin":   dict(color="#8a8985", ls="-", marker=None, label="LSP-lin"),
+    "LSP-mlp":   dict(color="#8a8985", ls="--", marker=None, label="LSP-mlp"),
+    "TS-plan":   dict(color="#0b0b0b", ls="-.", marker=None, label="TS-plan (model-based)"),
 }
 
 
@@ -213,7 +221,7 @@ def fig_horizon(hrows, var):
 def fig_interaction(irows, gaps):
     ds = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
     fig, axes = plt.subplots(1, 2, figsize=(COL1 * 2, 1.85))
-    for m in ["EXEC", "RBER", "RB*"]:
+    for m in ["EXEC", "RBER"] + (["RBER-C"] if any(r["method"] == "RBER-C" for r in irows) else []) + ["RB*"]:
         s = STY[m]
         for ax, key in zip(axes, ["auc", "final"]):
             vals = [[r[key] for r in sel(irows, inter=d, method=m)] for d in ds]
@@ -224,8 +232,10 @@ def fig_interaction(irows, gaps):
     axes[0].set_title("(a) learning speed"); axes[1].set_title("(b) final performance")
     for ax in axes:
         ax.set_xlabel(r"interaction strength $\delta$"); ax.set_xticks(ds)
-    axes[1].legend(loc="lower left")
-    fig.tight_layout(w_pad=2.0); fig.savefig(os.path.join(FIG, "interaction.pdf")); plt.close(fig)
+    fig.tight_layout(w_pad=2.0)
+    h, l = axes[0].get_legend_handles_labels()
+    fig.legend(h, l, loc="upper center", ncol=len(l), bbox_to_anchor=(0.5, 0.02))
+    fig.savefig(os.path.join(FIG, "interaction.pdf")); plt.close(fig)
     lines = []
     for d in ds:
         e = [r["auc"] for r in sel(irows, inter=d, method="EXEC")]; b = [r["auc"] for r in sel(irows, inter=d, method="RBER")]
@@ -303,6 +313,122 @@ def fig_skills():
     return d["meta"]
 
 
+# ================================================================ extension study (E6-E9, H8-H11)
+EXT_ORDER = ["STEP", "EXEC", "EXEC-RLOO", "EXEC-PPO", "LSP-mlp", "LSP-lin", "RBER", "RBER-LOO", "RBER-C"]
+EXT_REF = ["TS-plan", "RB*"]
+CONDS = [(3, 0.0), (3, 0.3), (4, 0.0), (4, 0.3)]
+
+
+def ext_report(main_rows, irows):
+    er = load_jsonl("ext_main")
+    if not er:
+        return {}
+    rows = main_rows + er
+    M = {}
+    # ---- table: all methods, AUC (IQM) and E0.9
+    lines = []
+    for m in EXT_ORDER + EXT_REF:
+        cells = [STY[m]["label"]]
+        for K, inter in CONDS:
+            R = sel(rows, K=K, inter=inter, method=m)
+            a = [r["auc"] for r in R]; e = np.array([r["execs90"] for r in R]); hit = sum(r["reached"] for r in R)
+            cells += [f"{iqm(a):.3f}", (f"{np.median(e) / 1000:.1f}k" if hit >= len(R) / 2 else "n.r.") + f" ({hit})"]
+        lines.append(cells)
+    for c in range(len(CONDS)):
+        vals = [float(l[1 + 2 * c]) for l, m in zip(lines, EXT_ORDER + EXT_REF) if m in EXT_ORDER]
+        for l, m in zip(lines, EXT_ORDER + EXT_REF):
+            if m in EXT_ORDER and abs(float(l[1 + 2 * c]) - max(vals)) < 1e-12:
+                l[1 + 2 * c] = r"\textbf{" + l[1 + 2 * c] + "}"
+    body = [" & ".join(l) + r" \\" for l in lines]
+    body.insert(len(EXT_ORDER), r"\midrule"); body.insert(6, r"\midrule")
+    hdr = (r"\begin{tabular}{l" + "rr" * 4 + "}\n\\toprule\n"
+           r" & \multicolumn{2}{c}{$K=3$, indep.} & \multicolumn{2}{c}{$K=3$, $\delta=0.3$} & \multicolumn{2}{c}{$K=4$, indep.} & \multicolumn{2}{c}{$K=4$, $\delta=0.3$} \\" "\n"
+           r"\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}" "\n"
+           r"Method & AUC & $E_{0.9}$ & AUC & $E_{0.9}$ & AUC & $E_{0.9}$ & AUC & $E_{0.9}$ \\" "\n\\midrule\n")
+    open(os.path.join(TAB, "ext_main.tex"), "w").write(hdr + "\n".join(body) + "\n\\bottomrule\n\\end{tabular}\n")
+
+    # ---- pre-registered tests
+    def paired(m1, m0, K, inter, key="auc", R1=None, R0=None):
+        a = R1 if R1 is not None else sel(rows, K=K, inter=inter, method=m1)
+        b = R0 if R0 is not None else sel(rows, K=K, inter=inter, method=m0)
+        assert [r["seed"] for r in a] == [r["seed"] for r in b]
+        x = np.array([r[key] for r in a]); y = np.array([r[key] for r in b]); d = x - y
+        return d.mean(), boot_ci(d), wilcoxon_paired(x, y), int((d > 0).sum())
+    recs = []
+    h8 = [paired("RBER-LOO", "RBER", K, i) for K, i in CONDS]
+    h8p = holm([r[2] for r in h8])
+    for (K, i), r, p in zip(CONDS, h8, h8p):
+        recs.append(("H8", K, i, "RBER-LOO", "RBER", r, p))
+    h10 = [(K, i, b, paired("RBER-LOO", b, K, i)) for K, i in CONDS for b in ("EXEC-RLOO", "EXEC-PPO", "LSP-lin", "LSP-mlp")]
+    h10p = holm([r[3][2] for r in h10])
+    for (K, i, b, r), p in zip(h10, h10p):
+        recs.append(("H10", K, i, "RBER-LOO", b, r, p))
+    for K in (3, 4):
+        r = paired("RBER-C", "RBER-LOO", K, 0.0)
+        recs.append(("H11", K, 0.0, "RBER-C", "RBER-LOO", r, None))
+    f = lambda p: "--" if p is None else (r"$<10^{-4}$" if p < 1e-4 else f"{p:.4f}")
+    lines = []
+    for h, K, i, m1, m0, (dm, ci, p, w), padj in recs:
+        cond = f"$K={K}$, " + ("indep." if i == 0 else r"$\delta=0.3$")
+        lines.append(f"{h} & {cond} & {m1} vs.\\ {m0} & {dm:+.3f} [{ci[0]:+.3f}, {ci[1]:+.3f}] & {w}/20 & {f(padj)} \\\\")
+    hdr = (r"\begin{tabular}{lllcrr}" "\n\\toprule\n"
+           r"Hyp. & Condition & Comparison & $\Delta$AUC [95\% CI] & wins & $p_{\mathrm{Holm}}$ \\" "\n\\midrule\n")
+    open(os.path.join(TAB, "ext_tests.tex"), "w").write(hdr + "\n".join(lines) + "\n\\bottomrule\n\\end{tabular}\n")
+    M["hEightWins"] = str(sum(1 for (h, *_rest) in recs if h == "H8" and _rest[5] is not None and _rest[5] < 0.05 and _rest[4][0] > 0))
+    M["hTenSig"] = str(sum(1 for (h, *_rest) in recs if h == "H10" and _rest[5] < 0.05 and _rest[4][0] > 0))
+    M["hTenMaxP"] = "<10^{-4}" if max(h10p) < 1e-4 else f"={max(h10p):.4f}"
+    M["hTenMin"] = f"{min(r[5][0] for r in recs if r[0] == 'H10'):.3f}"
+    M["hTenMax"] = f"{max(r[5][0] for r in recs if r[0] == 'H10'):.3f}"
+    M["hEightMaxAbs"] = f"{max(abs(r[5][0]) for r in recs if r[0] == 'H8'):.3f}"
+    M["hEightMinP"] = f"{min(r[6] for r in recs if r[0] == 'H8'):.2f}"
+    for K, inter, tag in ((3, 0.0, "ThreeI"), (3, 0.3, "ThreeD"), (4, 0.0, "FourI"), (4, 0.3, "FourD")):
+        M[f"tsAuc{tag}"] = f"{iqm([r['auc'] for r in sel(rows, K=K, inter=inter, method='TS-plan')]):.3f}"
+        M[f"ctxAuc{tag}"] = f"{iqm([r['auc'] for r in sel(rows, K=K, inter=inter, method='RBER-C')]):.3f}"
+        M[f"rberAuc{tag}"] = f"{iqm([r['auc'] for r in sel(rows, K=K, inter=inter, method='RBER')]):.3f}"
+    M["hElevenMin"] = f"{min(r[5][1][0] for r in recs if r[0] == 'H11'):+.3f}"
+    M["hElevenDiffThree"] = f"{[r for r in recs if r[0] == 'H11' and r[1] == 3][0][5][0]:+.3f}"
+    M["hElevenDiffFour"] = f"{[r for r in recs if r[0] == 'H11' and r[1] == 4][0][5][0]:+.3f}"
+
+    # ---- H9: interaction sweep with RBER-C
+    xr = load_jsonl("ext_interaction")
+    ds = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
+    lines, pa = [], []
+    for d in ds:
+        e = sel(irows, inter=d, method="EXEC"); c = sel(xr, inter=d, method="RBER-C"); l = sel(xr, inter=d, method="RBER-LOO")
+        fe = np.array([r["final"] for r in e]); fc = np.array([r["final"] for r in c]); fl = np.array([r["final"] for r in l])
+        df = fc - fe; cif = boot_ci(df)
+        ac = np.array([r["auc"] for r in c]); ae = np.array([r["auc"] for r in e]); pa.append(wilcoxon_paired(ac, ae))
+        lines.append([d, np.mean([r["auc"] for r in l]), ac.mean(), fe.mean(), fl.mean(), fc.mean(), df.mean(), cif])
+    pah = holm(pa)
+    out = []
+    for (d, al, ac, fe, fl, fc, dm, ci), p in zip(lines, pah):
+        out.append(f"{d:.1f} & {al:.3f} & {ac:.3f} & {f(p)} & {fe:.3f} & {fl:.3f} & {fc:.3f} & {dm:+.3f} [{ci[0]:+.3f}, {ci[1]:+.3f}] \\\\")
+        dw = ("Zero", "One", "Two", "Three", "Four", "Five")[int(round(d * 10))]
+        M[f"hNineFinal{dw}"] = f"{dm:+.3f}"; M[f"hNineLow{dw}"] = f"{ci[0]:+.3f}"
+        M[f"looFinal{dw}"] = f"{fl:.3f}"; M[f"ctxFinal{dw}"] = f"{fc:.3f}"; M[f"execFinal{dw}"] = f"{fe:.3f}"
+    M["hNinePmax"] = "<10^{-4}" if max(pah) < 1e-4 else f"={max(pah):.4f}"
+    hdr = (r"\begin{tabular}{rrrrrrrc}" "\n\\toprule\n"
+           r" & \multicolumn{3}{c}{AUC} & \multicolumn{4}{c}{final normalized success} \\ \cmidrule(lr){2-4}\cmidrule(lr){5-8}" "\n"
+           r"$\delta$ & LOO & C & $p_{\mathrm{Holm}}$(C$>$EXEC) & EXEC & LOO & C & C$-$EXEC [95\% CI] \\" "\n\\midrule\n")
+    open(os.path.join(TAB, "ext_interaction.tex"), "w").write(hdr + "\n".join(out) + "\n\\bottomrule\n\\end{tabular}\n")
+
+    # ---- horizon (RBER-LOO) and kappa ablation macros
+    hr = load_jsonl("ext_horizon")
+    for K, w in zip((2, 3, 4, 5, 6), ("Two", "Three", "Four", "Five", "Six")):
+        R = sel(hr, K=K, method="RBER-LOO")
+        if R:
+            M[f"looEnine{w}"] = f"{np.median([r['execs90'] for r in R]) / 1000:.1f}k"
+            M[f"looReach{w}"] = str(sum(r["reached"] for r in R))
+    kr = load_jsonl("ext_kappa")
+    for inter, tag in ((0.0, "I"), (0.3, "D")):
+        for kap, kw in ((0.5, "Half"), (8.0, "Eight")):
+            R = [r for r in kr if abs(r["inter"] - inter) < 1e-9 and abs(r["kappa"] - kap) < 1e-9]
+            if R:
+                M[f"kappa{kw}{tag}"] = f"{np.mean([r['auc'] for r in R]):.3f}"
+        M[f"kappaTwo{tag}"] = f"{np.mean([r['auc'] for r in sel(er, K=3, inter=inter, method='RBER-C')]):.3f}"
+    return M
+
+
 # ================================================================ LLM (Kaggle) results
 def llm_report():
     files = sorted(glob.glob(os.path.join(RES, "llm", "**", "llm_*_s*.json"), recursive=True))
@@ -310,11 +436,13 @@ def llm_report():
     runs = [r for r in runs if r.get("done")]
     macros = {}
     if not runs:
-        open(os.path.join(TAB, "llm_status.tex"), "w").write("\\newcommand{\\LLMready}{0}\n")
+        open(os.path.join(TAB, "llm_status.tex"), "w").write("\\newcommand{\\LLMready}{0}\n\\newcommand{\\LLMextReady}{0}\n")
         return None
-    by = {}
+    allby = {}
     for r in runs:
-        by.setdefault(r["method"], {})[r["seed"]] = r
+        allby.setdefault(r["method"], {})[r["seed"]] = r
+    # original pre-registered study: seeds 0-9 of the five original methods (sessions A-C)
+    by = {m: {s: r for s, r in allby[m].items() if s < 10} for m in ["VERIF", "STEP", "EXEC", "RBER", "RBER-NL"] if m in allby}
     methods = [m for m in ["VERIF", "STEP", "EXEC", "RBER", "RBER-NL"] if m in by]
     nseeds = {m: len(by[m]) for m in methods}
     # figure: normalized train / held-out success vs executions (VERIF vs updates, shown flat at its final)
@@ -381,9 +509,44 @@ def llm_report():
         adj = holm([tests[k]["p_auc"] for k in ks] + [tests[k]["p_held"] for k in ks])
         for i, k in enumerate(ks):
             tests[k]["p_auc_holm"] = float(adj[i]); tests[k]["p_held_holm"] = float(adj[len(ks) + i])
-    json.dump(dict(nseeds=nseeds, tests=tests), open(os.path.join(RES, "llm", "summary.json"), "w"), indent=1)
+    # extension study (H12, H13): RBER-LOO vs EXEC (and RBER vs EXEC) over all available seeds
+    ext = {}
+    if "RBER-LOO" in allby and "EXEC" in allby:
+        def aucs(m, ss): return np.array([aucf(allby[m][s]) for s in ss])
+        def held(m, ss): return np.array([allby[m][s]["hist"][-1]["held_norm"] for s in ss])
+        ss = sorted(set(allby["RBER-LOO"]) & set(allby["EXEC"]) & set(allby.get("RBER", {})))
+        d12 = aucs("RBER-LOO", ss) - aucs("EXEC", ss)
+        ext["H12"] = dict(n=len(ss), d=float(d12.mean()), ci=boot_ci(d12), p=wilcoxon_paired(aucs("RBER-LOO", ss), aucs("EXEC", ss)),
+                          wins=int((d12 > 0).sum()))
+        hl = held("RBER-LOO", ss) - held("EXEC", ss); hr = held("RBER", ss) - held("EXEC", ss)
+        ph = holm([wilcoxon_paired(held("RBER-LOO", ss), held("EXEC", ss)), wilcoxon_paired(held("RBER", ss), held("EXEC", ss))])
+        ext["H13"] = dict(loo=float(hl.mean()), loo_p=float(ph[0]), rber=float(hr.mean()), rber_p=float(ph[1]))
+        dr = aucs("RBER", ss) - aucs("EXEC", ss)
+        ext["RBER20"] = dict(d=float(dr.mean()), ci=boot_ci(dr), p=wilcoxon_paired(aucs("RBER", ss), aucs("EXEC", ss)))
+        lines = []
+        for m in ["EXEC", "RBER", "RBER-LOO"]:
+            au = aucs(m, ss); tr = np.array([allby[m][s]["hist"][-1]["train_norm"] for s in ss]); he = held(m, ss)
+            ex = np.mean([allby[m][s]["hist"][-1]["execs"] for s in ss])
+            lines.append(f"{STY[m]['label']} & {len(ss)} & {fmt_ci(au.mean(), boot_ci(au))} & {fmt_ci(tr.mean(), boot_ci(tr))} & "
+                         f"{fmt_ci(he.mean(), boot_ci(he))} & {ex:.0f} \\\\")
+        hdr = (r"\begin{tabular}{lrcccr}" "\n\\toprule\n"
+               r"Method & seeds & AUC (train) & final train & final held-out & executions \\" "\n\\midrule\n")
+        open(os.path.join(TAB, "llm_ext.tex"), "w").write(hdr + "\n".join(lines) + "\n\\bottomrule\n\\end{tabular}\n")
+    tests["ext"] = ext
+    json.dump(dict(nseeds=nseeds, tests=tests), open(os.path.join(RES, "llm", "summary.json"), "w"), indent=1, default=float)
     with open(os.path.join(TAB, "llm_status.tex"), "w") as f:
         f.write("\\newcommand{\\LLMready}{1}\n")
+        e = tests.get("ext", {})
+        f.write("\\newcommand{\\LLMextReady}{" + ("1" if e else "0") + "}\n")
+        if e:
+            fp2 = lambda p: "<10^{-4}" if p < 1e-4 else f"={p:.3f}"
+            f.write(f"\\newcommand{{\\LLMextN}}{{{e['H12']['n']}}}\n\\newcommand{{\\LLMhTwelveD}}{{{e['H12']['d']:+.3f}}}\n"
+                    f"\\newcommand{{\\LLMhTwelveCI}}{{[{e['H12']['ci'][0]:+.3f}, {e['H12']['ci'][1]:+.3f}]}}\n"
+                    f"\\newcommand{{\\LLMhTwelveP}}{{{fp2(e['H12']['p'])}}}\n\\newcommand{{\\LLMhTwelveWins}}{{{e['H12']['wins']}}}\n"
+                    f"\\newcommand{{\\LLMhTwelveVerdict}}{{{'supported' if (e['H12']['p'] < 0.05 and e['H12']['d'] > 0) else 'not supported'}}}\n"
+                    f"\\newcommand{{\\LLMhThirteenLoo}}{{{e['H13']['loo']:+.3f}}}\n\\newcommand{{\\LLMhThirteenLooP}}{{{fp2(e['H13']['loo_p'])}}}\n"
+                    f"\\newcommand{{\\LLMhThirteenRber}}{{{e['H13']['rber']:+.3f}}}\n\\newcommand{{\\LLMhThirteenRberP}}{{{fp2(e['H13']['rber_p'])}}}\n"
+                    f"\\newcommand{{\\LLMrberTwentyD}}{{{e['RBER20']['d']:+.3f}}}\n\\newcommand{{\\LLMrberTwentyP}}{{{fp2(e['RBER20']['p'])}}}\n")
         f.write(f"\\newcommand{{\\LLMseeds}}{{{min(nseeds.values())}}}\n")
         if "H6" in tests:
             f.write(f"\\newcommand{{\\LLMhalf}}{{{tests['H6']['rber_half']:.3f}}}\n\\newcommand{{\\LLMexecfull}}{{{tests['H6']['exec_full']:.3f}}}\n")
@@ -456,9 +619,16 @@ if __name__ == "__main__":
     var = json.load(open(os.path.join(RES, "cpu", "variance.json")))
     gaps = json.load(open(os.path.join(RES, "cpu", "interaction_gaps.json")))
     meta = fig_skills()
-    fig_main(rows); tab_main(rows); recs, adj = tab_tests(rows)
-    err = fig_horizon(hrows, var); fig_interaction(irows, gaps); tab_ablations(arows, rows)
+    fig_main(rows + load_jsonl("ext_main")); tab_main(rows); recs, adj = tab_tests(rows)
+    err = fig_horizon(hrows + load_jsonl("ext_horizon"), var); fig_interaction(irows + load_jsonl("ext_interaction"), gaps)
+    tab_ablations(arows, rows)
     M = macros(rows, hrows, var, irows, gaps, recs, adj, meta, err)
+    EM = ext_report(rows, irows)
+    if EM:
+        with open(os.path.join(TAB, "numbers.tex"), "a") as f:
+            for k, v in EM.items():
+                f.write(f"\\newcommand{{\\num{k}}}{{{v}}}\n")
+        M.update(EM)
     t = llm_report()
     # PNG previews of every figure (for the README / quick viewing); the paper uses the PDFs
     import shutil, subprocess

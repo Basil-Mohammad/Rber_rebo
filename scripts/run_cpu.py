@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 from rber.domain import build_world, load_library          # noqa: E402
 from rber.tabular import train, softmax                     # noqa: E402
 from rber import theory                                      # noqa: E402
+from rber.extension import EXT_METHODS, train_ext            # noqa: E402
 
 OUT = os.path.join(os.path.dirname(__file__), "..", "results", "cpu")
 LIB = load_library()
@@ -41,8 +42,12 @@ def execs_to(curve, thr=0.9):
 
 def run_one(cfg):
     w = build_world(LIB, K=cfg["K"], seed=cfg["seed"], interaction=cfg.get("inter", 0.0))
-    r = train(w, cfg["method"], cfg["lr"], seed=cfg["seed"], n_updates=cfg.get("U", N_UPD), G=cfg.get("G", G),
-              eval_every=EVAL_EVERY, prior=tuple(cfg.get("prior", (1.0, 1.0))))
+    if cfg["method"] in EXT_METHODS:
+        r = train_ext(w, cfg["method"], cfg["lr"], seed=cfg["seed"], n_updates=cfg.get("U", N_UPD), G=cfg.get("G", G),
+                      eval_every=EVAL_EVERY, model_lr=cfg.get("mlr", 0.05), kappa=cfg.get("kappa", 2.0))
+    else:
+        r = train(w, cfg["method"], cfg["lr"], seed=cfg["seed"], n_updates=cfg.get("U", N_UPD), G=cfg.get("G", G),
+                  eval_every=EVAL_EVERY, prior=tuple(cfg.get("prior", (1.0, 1.0))))
     e, hit = execs_to(r["curve"])
     return dict(cfg, final=r["final"], auc=auc(r["curve"]), execs90=e, reached=hit, optimum=r["optimum"],
                 curve=r["curve"], total_execs=r["curve"][-1][1])
@@ -161,10 +166,61 @@ def cmd_variance():
     print("max identity error:", max(r["identity_err"] for r in rows))
 
 
+# ================================================================ extension study (docs/PREREGISTRATION_extension.md)
+EXT_POLICY = ["RBER-LOO", "RBER-C", "EXEC-RLOO", "EXEC-PPO"]
+EXT_LSP = ["LSP-lin", "LSP-mlp"]
+MLRS = [0.003, 0.01, 0.05, 0.2]      # 0.003 and policy lr 0.1 added by amendment (edge of grid), before evaluation
+LRS_LSP = [0.1] + LRS
+
+
+def cmd_ext_tune():
+    cfgs = [dict(K=3, inter=inter, seed=s, method=m, lr=lr, mlr=0.05) for inter in (0.0, 0.3) for s in TUNE_SEEDS
+            for m in EXT_POLICY for lr in LRS]
+    cfgs += [dict(K=3, inter=inter, seed=s, method=m, lr=lr, mlr=mlr) for inter in (0.0, 0.3) for s in TUNE_SEEDS
+             for m in EXT_LSP for lr in LRS_LSP for mlr in MLRS]
+    rows = run_many("ext_tune", cfgs)
+    best = {}
+    for inter in (0.0, 0.3):
+        for m in EXT_POLICY + EXT_LSP:
+            grid = [(lr, mlr) for lr in (LRS_LSP if m in EXT_LSP else LRS) for mlr in (MLRS if m in EXT_LSP else [0.05])]
+            sc = {g: np.mean([r["auc"] for r in rows if r["inter"] == inter and r["method"] == m and r["lr"] == g[0]
+                              and r["mlr"] == g[1]]) for g in grid}
+            b = max(sc, key=sc.get); best[f"{m}|{inter}"] = dict(lr=b[0], mlr=b[1])
+            print(f"  inter={inter} {m:9s} best lr={b[0]} mlr={b[1]} auc={sc[b]:.3f}", flush=True)
+    json.dump(best, open(os.path.join(OUT, "ext_tuned.json"), "w"), indent=1)
+
+
+def ext_cfg(m, K, inter, seed, **kw):
+    if m == "TS-plan":
+        return dict(K=K, inter=inter, seed=seed, method=m, lr=0.0, mlr=0.0, **kw)
+    b = json.load(open(os.path.join(OUT, "ext_tuned.json")))[f"{m}|{0.3 if inter > 0 else 0.0}"]
+    return dict(K=K, inter=inter, seed=seed, method=m, lr=b["lr"], mlr=b["mlr"], **kw)
+
+
+def cmd_ext_main():
+    run_many("ext_main", [ext_cfg(m, K, inter, s) for K in (3, 4) for inter in (0.0, 0.3) for s in EVAL_SEEDS
+                          for m in EXT_POLICY + EXT_LSP + ["TS-plan"]])
+
+
+def cmd_ext_interaction():
+    run_many("ext_interaction", [ext_cfg(m, 3, d, s) for d in (0.0, 0.1, 0.2, 0.3, 0.4, 0.5) for s in EVAL_SEEDS
+                                 for m in ("RBER-LOO", "RBER-C")])
+
+
+def cmd_ext_horizon():
+    run_many("ext_horizon", [ext_cfg("RBER-LOO", K, 0.0, s) for K in (2, 3, 4, 5, 6) for s in EVAL_SEEDS])
+
+
+def cmd_ext_kappa():
+    run_many("ext_kappa", [ext_cfg("RBER-C", 3, inter, s, kappa=k) for inter in (0.0, 0.3) for s in EVAL_SEEDS
+                           for k in (0.5, 8.0)])
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     cmds = dict(tune=cmd_tune, main=cmd_main, horizon=cmd_horizon, variance=cmd_variance,
-                interaction=cmd_interaction, ablations=cmd_ablations)
+                interaction=cmd_interaction, ablations=cmd_ablations, ext_tune=cmd_ext_tune, ext_main=cmd_ext_main,
+                ext_interaction=cmd_ext_interaction, ext_horizon=cmd_ext_horizon, ext_kappa=cmd_ext_kappa)
     which = sys.argv[1] if len(sys.argv) > 1 else "all"
     for k in (cmds if which == "all" else [which]):
         t0 = time.time(); print(f"=== {k}", flush=True); cmds[k](); print(f"=== {k} done in {time.time() - t0:.0f}s", flush=True)

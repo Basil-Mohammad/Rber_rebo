@@ -1,0 +1,79 @@
+=== ext_tune
+[ext_tune] 400 runs, 400 to do
+  50/400  28s
+  100/400  59s
+  150/400  93s
+  200/400  775s
+  250/400  1919s
+=== ext_tune
+[ext_tune] 400 runs, 128 to do
+  50/128  262s
+  100/128  500s
+  128/128  639s
+  inter=0.0 RBER-LOO  best lr=1.0 mlr=0.05 auc=0.949
+  inter=0.0 RBER-C    best lr=1.0 mlr=0.05 auc=0.927
+  inter=0.0 EXEC-RLOO best lr=3.0 mlr=0.05 auc=0.877
+  inter=0.0 EXEC-PPO  best lr=3.0 mlr=0.05 auc=0.846
+  inter=0.0 LSP-lin   best lr=1.0 mlr=0.05 auc=0.904
+  inter=0.0 LSP-mlp   best lr=0.3 mlr=0.01 auc=0.863
+  inter=0.3 RBER-LOO  best lr=1.0 mlr=0.05 auc=0.900
+  inter=0.3 RBER-C    best lr=1.0 mlr=0.05 auc=0.916
+  inter=0.3 EXEC-RLOO best lr=3.0 mlr=0.05 auc=0.840
+  inter=0.3 EXEC-PPO  best lr=3.0 mlr=0.05 auc=0.821
+  inter=0.3 LSP-lin   best lr=0.3 mlr=0.05 auc=0.844
+  inter=0.3 LSP-mlp   best lr=0.3 mlr=0.01 auc=0.816
+=== ext_tune done in 639s
+=== ext_main
+[ext_main] 560 runs, 560 to do
+=== ext_tune
+[ext_tune] 560 runs, 160 to do
+  50/160  224s
+  100/160  461s
+  150/160  690s
+  160/160  749s
+  inter=0.0 RBER-LOO  best lr=1.0 mlr=0.05 auc=0.949
+  inter=0.0 RBER-C    best lr=1.0 mlr=0.05 auc=0.927
+  inter=0.0 EXEC-RLOO best lr=3.0 mlr=0.05 auc=0.877
+  inter=0.0 EXEC-PPO  best lr=3.0 mlr=0.05 auc=0.846
+  inter=0.0 LSP-lin   best lr=1.0 mlr=0.05 auc=0.904
+  inter=0.0 LSP-mlp   best lr=0.3 mlr=0.01 auc=0.863
+  inter=0.3 RBER-LOO  best lr=1.0 mlr=0.05 auc=0.900
+  inter=0.3 RBER-C    best lr=1.0 mlr=0.05 auc=0.916
+  inter=0.3 EXEC-RLOO best lr=3.0 mlr=0.05 auc=0.840
+  inter=0.3 EXEC-PPO  best lr=3.0 mlr=0.05 auc=0.821
+  inter=0.3 LSP-lin   best lr=0.3 mlr=0.05 auc=0.844
+  inter=0.3 LSP-mlp   best lr=0.3 mlr=0.003 auc=0.820
+=== ext_tune done in 750s
+=== ext_main
+[ext_main] 560 runs, 560 to do
+  50/560  97s
+  100/560  189s
+  150/560  291s
+  200/560  392s
+  250/560  498s
+  300/560  616s
+  350/560  747s
+  400/560  872s
+  450/560  1002s
+  500/560  1131s
+  550/560  1266s
+  560/560  1301s
+=== ext_main done in 1301s
+=== ext_interaction
+[ext_interaction] 240 runs, 240 to do
+  50/240  34s
+  100/240  70s
+  150/240  106s
+  200/240  144s
+  240/240  175s
+=== ext_interaction done in 175s
+=== ext_horizon
+[ext_horizon] 100 runs, 100 to do
+  50/100  34s
+  100/100  77s
+=== ext_horizon done in 77s
+=== ext_kappa
+[ext_kappa] 80 runs, 80 to do
+  50/80  34s
+  80/80  55s
+=== ext_kappa done in 55s
