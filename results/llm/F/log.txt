@@ -1,0 +1,182 @@
+=== session F Sat Oct  3 12:02:19 2026 | GPU: Tesla T4
+skills: 54 | optimum train/held: 0.328742375 0.26906008333333337
+[EXEC s15] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 8s
+[EXEC s15] upd  25 execs   447 | train 0.197/0.329 held 0.064/0.269 entropy 0.49 101s
+[EXEC s15] upd  50 execs  1059 | train 0.177/0.329 held 0.077/0.269 entropy 0.32 241s
+[EXEC s15] upd  75 execs  1669 | train 0.200/0.329 held 0.029/0.269 entropy 0.24 382s
+[EXEC s15] upd 100 execs  2291 | train 0.216/0.329 held 0.078/0.269 entropy 0.23 516s
+[EXEC s15] upd 125 execs  2989 | train 0.235/0.329 held 0.076/0.269 entropy 0.19 663s
+[EXEC s15] upd 150 execs  3644 | train 0.190/0.329 held 0.082/0.269 entropy 0.27 811s
+[EXEC s15] upd 175 execs  4216 | train 0.156/0.329 held 0.046/0.269 entropy 0.21 937s
+[EXEC s15] upd 200 execs  4791 | train 0.249/0.329 held 0.092/0.269 entropy 0.20 1042s
+[EXEC s15] upd 225 execs  5505 | train 0.258/0.329 held 0.089/0.269 entropy 0.16 1199s
+[EXEC s15] upd 250 execs  6198 | train 0.243/0.329 held 0.096/0.269 entropy 0.14 1348s
+GPU memory after run: 0.02 GiB
+[RBER s15] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER s15] upd  25 execs   587 | train 0.190/0.329 held 0.129/0.269 entropy 0.34 260s
+[RBER s15] upd  50 execs  1352 | train 0.243/0.329 held 0.097/0.269 entropy 0.20 428s
+[RBER s15] upd  75 execs  2140 | train 0.258/0.329 held 0.098/0.269 entropy 0.09 551s
+[RBER s15] upd 100 execs  2926 | train 0.294/0.329 held 0.092/0.269 entropy 0.03 640s
+[RBER s15] upd 125 execs  3725 | train 0.285/0.329 held 0.046/0.269 entropy 0.04 697s
+[RBER s15] upd 150 execs  4517 | train 0.325/0.329 held 0.082/0.269 entropy 0.01 747s
+[RBER s15] upd 175 execs  5317 | train 0.325/0.329 held 0.081/0.269 entropy 0.01 782s
+[RBER s15] upd 200 execs  6117 | train 0.325/0.329 held 0.081/0.269 entropy 0.01 814s
+[RBER s15] upd 225 execs  6916 | train 0.325/0.329 held 0.122/0.269 entropy 0.01 849s
+[RBER s15] upd 250 execs  7716 | train 0.325/0.329 held 0.099/0.269 entropy 0.01 884s
+GPU memory after run: 0.02 GiB
+[RBER-LOO s15] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER-LOO s15] upd  25 execs   624 | train 0.269/0.329 held 0.086/0.269 entropy 0.38 281s
+[RBER-LOO s15] upd  50 execs  1375 | train 0.271/0.329 held 0.106/0.269 entropy 0.16 544s
+[RBER-LOO s15] upd  75 execs  2152 | train 0.312/0.329 held 0.140/0.269 entropy 0.10 792s
+[RBER-LOO s15] upd 100 execs  2936 | train 0.308/0.329 held 0.115/0.269 entropy 0.09 1057s
+[RBER-LOO s15] upd 125 execs  3698 | train 0.322/0.329 held 0.104/0.269 entropy 0.05 1306s
+[RBER-LOO s15] upd 150 execs  4486 | train 0.321/0.329 held 0.149/0.269 entropy 0.04 1567s
+[RBER-LOO s15] upd 175 execs  5282 | train 0.319/0.329 held 0.088/0.269 entropy 0.07 1826s
+[RBER-LOO s15] upd 200 execs  6080 | train 0.314/0.329 held 0.174/0.269 entropy 0.04 2089s
+[RBER-LOO s15] upd 225 execs  6877 | train 0.323/0.329 held 0.160/0.269 entropy 0.02 2331s
+[RBER-LOO s15] upd 250 execs  7675 | train 0.323/0.329 held 0.139/0.269 entropy 0.02 2582s
+GPU memory after run: 0.02 GiB
+[EXEC s16] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[EXEC s16] upd  25 execs   465 | train 0.161/0.329 held 0.045/0.269 entropy 0.68 99s
+[EXEC s16] upd  50 execs   900 | train 0.123/0.329 held 0.039/0.269 entropy 0.42 184s
+[EXEC s16] upd  75 execs  1401 | train 0.191/0.329 held 0.103/0.269 entropy 0.53 270s
+[EXEC s16] upd 100 execs  1967 | train 0.197/0.329 held 0.111/0.269 entropy 0.37 405s
+[EXEC s16] upd 125 execs  2591 | train 0.202/0.329 held 0.108/0.269 entropy 0.28 544s
+[EXEC s16] upd 150 execs  3292 | train 0.218/0.329 held 0.110/0.269 entropy 0.23 686s
+[EXEC s16] upd 175 execs  3993 | train 0.223/0.329 held 0.077/0.269 entropy 0.12 844s
+[EXEC s16] upd 200 execs  4730 | train 0.228/0.329 held 0.097/0.269 entropy 0.15 993s
+[EXEC s16] upd 225 execs  5482 | train 0.214/0.329 held 0.102/0.269 entropy 0.06 1151s
+[EXEC s16] upd 250 execs  6207 | train 0.235/0.329 held 0.104/0.269 entropy 0.11 1290s
+GPU memory after run: 0.02 GiB
+[RBER s16] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER s16] upd  25 execs   641 | train 0.235/0.329 held 0.095/0.269 entropy 0.45 282s
+[RBER s16] upd  50 execs  1414 | train 0.288/0.329 held 0.113/0.269 entropy 0.13 479s
+[RBER s16] upd  75 execs  2206 | train 0.311/0.329 held 0.091/0.269 entropy 0.09 581s
+[RBER s16] upd 100 execs  2997 | train 0.311/0.329 held 0.106/0.269 entropy 0.03 671s
+[RBER s16] upd 125 execs  3792 | train 0.311/0.329 held 0.069/0.269 entropy 0.02 716s
+[RBER s16] upd 150 execs  4589 | train 0.291/0.329 held 0.122/0.269 entropy 0.07 781s
+[RBER s16] upd 175 execs  5377 | train 0.320/0.329 held 0.107/0.269 entropy 0.04 873s
+[RBER s16] upd 200 execs  6173 | train 0.320/0.329 held 0.091/0.269 entropy 0.02 942s
+[RBER s16] upd 225 execs  6967 | train 0.322/0.329 held 0.085/0.269 entropy 0.02 1012s
+[RBER s16] upd 250 execs  7756 | train 0.328/0.329 held 0.099/0.269 entropy 0.04 1106s
+GPU memory after run: 0.02 GiB
+[RBER-LOO s16] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER-LOO s16] upd  25 execs   598 | train 0.164/0.329 held 0.106/0.269 entropy 0.36 266s
+[RBER-LOO s16] upd  50 execs  1288 | train 0.221/0.329 held 0.109/0.269 entropy 0.19 500s
+[RBER-LOO s16] upd  75 execs  2019 | train 0.272/0.329 held 0.144/0.269 entropy 0.12 750s
+[RBER-LOO s16] upd 100 execs  2802 | train 0.272/0.329 held 0.163/0.269 entropy 0.12 1007s
+[RBER-LOO s16] upd 125 execs  3597 | train 0.274/0.329 held 0.143/0.269 entropy 0.07 1254s
+[RBER-LOO s16] upd 150 execs  4385 | train 0.284/0.329 held 0.136/0.269 entropy 0.10 1511s
+[RBER-LOO s16] upd 175 execs  5172 | train 0.312/0.329 held 0.175/0.269 entropy 0.04 1760s
+[RBER-LOO s16] upd 200 execs  5966 | train 0.319/0.329 held 0.140/0.269 entropy 0.02 1998s
+[RBER-LOO s16] upd 225 execs  6763 | train 0.319/0.329 held 0.165/0.269 entropy 0.02 2248s
+[RBER-LOO s16] upd 250 execs  7562 | train 0.319/0.329 held 0.161/0.269 entropy 0.01 2494s
+GPU memory after run: 0.02 GiB
+[EXEC s17] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[EXEC s17] upd  25 execs   385 | train 0.170/0.329 held 0.047/0.269 entropy 0.77 101s
+[EXEC s17] upd  50 execs   899 | train 0.160/0.329 held 0.063/0.269 entropy 0.29 206s
+[EXEC s17] upd  75 execs  1461 | train 0.185/0.329 held 0.050/0.269 entropy 0.51 296s
+[EXEC s17] upd 100 execs  2037 | train 0.150/0.329 held 0.001/0.269 entropy 0.29 409s
+[EXEC s17] upd 125 execs  2527 | train 0.213/0.329 held 0.110/0.269 entropy 0.36 531s
+[EXEC s17] upd 150 execs  3093 | train 0.183/0.329 held 0.073/0.269 entropy 0.26 654s
+[EXEC s17] upd 175 execs  3662 | train 0.233/0.329 held 0.112/0.269 entropy 0.19 779s
+[EXEC s17] upd 200 execs  4324 | train 0.268/0.329 held 0.142/0.269 entropy 0.27 955s
+[EXEC s17] upd 225 execs  4946 | train 0.235/0.329 held 0.158/0.269 entropy 0.25 1103s
+[EXEC s17] upd 250 execs  5598 | train 0.191/0.329 held 0.162/0.269 entropy 0.10 1272s
+GPU memory after run: 0.02 GiB
+[RBER s17] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER s17] upd  25 execs   571 | train 0.228/0.329 held 0.077/0.269 entropy 0.45 278s
+[RBER s17] upd  50 execs  1328 | train 0.264/0.329 held 0.092/0.269 entropy 0.23 497s
+[RBER s17] upd  75 execs  2100 | train 0.313/0.329 held 0.099/0.269 entropy 0.09 675s
+[RBER s17] upd 100 execs  2893 | train 0.312/0.329 held 0.096/0.269 entropy 0.06 771s
+[RBER s17] upd 125 execs  3679 | train 0.327/0.329 held 0.136/0.269 entropy 0.05 876s
+[RBER s17] upd 150 execs  4464 | train 0.328/0.329 held 0.115/0.269 entropy 0.07 956s
+[RBER s17] upd 175 execs  5262 | train 0.329/0.329 held 0.129/0.269 entropy 0.01 1012s
+[RBER s17] upd 200 execs  6062 | train 0.329/0.329 held 0.145/0.269 entropy 0.01 1055s
+[RBER s17] upd 225 execs  6862 | train 0.329/0.329 held 0.120/0.269 entropy 0.01 1090s
+[RBER s17] upd 250 execs  7662 | train 0.329/0.329 held 0.109/0.269 entropy 0.01 1120s
+GPU memory after run: 0.02 GiB
+[RBER-LOO s17] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER-LOO s17] upd  25 execs   623 | train 0.183/0.329 held 0.088/0.269 entropy 0.27 273s
+[RBER-LOO s17] upd  50 execs  1364 | train 0.260/0.329 held 0.096/0.269 entropy 0.10 533s
+[RBER-LOO s17] upd  75 execs  2116 | train 0.286/0.329 held 0.081/0.269 entropy 0.09 786s
+[RBER-LOO s17] upd 100 execs  2892 | train 0.294/0.329 held 0.097/0.269 entropy 0.08 1035s
+[RBER-LOO s17] upd 125 execs  3685 | train 0.284/0.329 held 0.098/0.269 entropy 0.07 1287s
+[RBER-LOO s17] upd 150 execs  4482 | train 0.295/0.329 held 0.081/0.269 entropy 0.03 1549s
+[RBER-LOO s17] upd 175 execs  5277 | train 0.305/0.329 held 0.088/0.269 entropy 0.02 1806s
+[RBER-LOO s17] upd 200 execs  6076 | train 0.303/0.329 held 0.114/0.269 entropy 0.03 2053s
+[RBER-LOO s17] upd 225 execs  6873 | train 0.306/0.329 held 0.091/0.269 entropy 0.02 2306s
+[RBER-LOO s17] upd 250 execs  7673 | train 0.306/0.329 held 0.110/0.269 entropy 0.02 2554s
+GPU memory after run: 0.02 GiB
+[EXEC s18] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[EXEC s18] upd  25 execs   504 | train 0.137/0.329 held 0.030/0.269 entropy 0.17 126s
+[EXEC s18] upd  50 execs  1010 | train 0.154/0.329 held 0.045/0.269 entropy 0.30 240s
+[EXEC s18] upd  75 execs  1571 | train 0.170/0.329 held 0.087/0.269 entropy 0.22 357s
+[EXEC s18] upd 100 execs  2271 | train 0.188/0.329 held 0.035/0.269 entropy 0.14 473s
+[EXEC s18] upd 125 execs  2963 | train 0.188/0.329 held 0.030/0.269 entropy 0.08 616s
+[EXEC s18] upd 150 execs  3654 | train 0.184/0.329 held 0.045/0.269 entropy 0.11 758s
+[EXEC s18] upd 175 execs  4289 | train 0.191/0.329 held 0.064/0.269 entropy 0.13 882s
+[EXEC s18] upd 200 execs  4929 | train 0.198/0.329 held 0.054/0.269 entropy 0.19 1019s
+[EXEC s18] upd 225 execs  5583 | train 0.190/0.329 held 0.073/0.269 entropy 0.13 1171s
+[EXEC s18] upd 250 execs  6245 | train 0.182/0.329 held 0.034/0.269 entropy 0.14 1303s
+GPU memory after run: 0.02 GiB
+[RBER s18] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER s18] upd  25 execs   611 | train 0.142/0.329 held 0.087/0.269 entropy 0.30 240s
+[RBER s18] upd  50 execs  1357 | train 0.269/0.329 held 0.141/0.269 entropy 0.23 432s
+[RBER s18] upd  75 execs  2129 | train 0.284/0.329 held 0.139/0.269 entropy 0.07 604s
+[RBER s18] upd 100 execs  2924 | train 0.293/0.329 held 0.144/0.269 entropy 0.04 679s
+[RBER s18] upd 125 execs  3721 | train 0.294/0.329 held 0.128/0.269 entropy 0.05 736s
+[RBER s18] upd 150 execs  4511 | train 0.294/0.329 held 0.176/0.269 entropy 0.06 813s
+[RBER s18] upd 175 execs  5307 | train 0.311/0.329 held 0.159/0.269 entropy 0.03 881s
+[RBER s18] upd 200 execs  6101 | train 0.316/0.329 held 0.110/0.269 entropy 0.09 949s
+[RBER s18] upd 225 execs  6891 | train 0.316/0.329 held 0.046/0.269 entropy 0.01 1035s
+[RBER s18] upd 250 execs  7690 | train 0.317/0.329 held 0.050/0.269 entropy 0.02 1077s
+GPU memory after run: 0.02 GiB
+[RBER-LOO s18] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER-LOO s18] upd  25 execs   651 | train 0.240/0.329 held 0.159/0.269 entropy 0.21 273s
+[RBER-LOO s18] upd  50 execs  1349 | train 0.252/0.329 held 0.161/0.269 entropy 0.39 522s
+[RBER-LOO s18] upd  75 execs  2054 | train 0.304/0.329 held 0.111/0.269 entropy 0.15 766s
+[RBER-LOO s18] upd 100 execs  2804 | train 0.302/0.329 held 0.154/0.269 entropy 0.14 1014s
+[RBER-LOO s18] upd 125 execs  3585 | train 0.311/0.329 held 0.147/0.269 entropy 0.06 1266s
+[RBER-LOO s18] upd 150 execs  4369 | train 0.316/0.329 held 0.164/0.269 entropy 0.02 1510s
+[RBER-LOO s18] upd 175 execs  5167 | train 0.325/0.329 held 0.152/0.269 entropy 0.04 1758s
+[RBER-LOO s18] upd 200 execs  5966 | train 0.325/0.329 held 0.185/0.269 entropy 0.02 2013s
+[RBER-LOO s18] upd 225 execs  6718 | train 0.315/0.329 held 0.169/0.269 entropy 0.01 2239s
+[RBER-LOO s18] upd 250 execs  7443 | train 0.315/0.329 held 0.148/0.269 entropy 0.01 2472s
+GPU memory after run: 0.02 GiB
+[EXEC s19] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[EXEC s19] upd  25 execs   460 | train 0.117/0.329 held 0.060/0.269 entropy 0.37 111s
+[EXEC s19] upd  50 execs   941 | train 0.115/0.329 held 0.051/0.269 entropy 0.37 167s
+[EXEC s19] upd  75 execs  1372 | train 0.116/0.329 held 0.038/0.269 entropy 0.27 214s
+[EXEC s19] upd 100 execs  1903 | train 0.126/0.329 held 0.047/0.269 entropy 0.30 289s
+[EXEC s19] upd 125 execs  2410 | train 0.132/0.329 held 0.038/0.269 entropy 0.27 374s
+[EXEC s19] upd 150 execs  2840 | train 0.118/0.329 held 0.038/0.269 entropy 0.40 435s
+[EXEC s19] upd 175 execs  3276 | train 0.169/0.329 held 0.032/0.269 entropy 0.69 508s
+[EXEC s19] upd 200 execs  3790 | train 0.171/0.329 held 0.048/0.269 entropy 0.32 612s
+[EXEC s19] upd 225 execs  4275 | train 0.176/0.329 held 0.037/0.269 entropy 0.26 705s
+[EXEC s19] upd 250 execs  4767 | train 0.190/0.329 held 0.086/0.269 entropy 0.32 795s
+GPU memory after run: 0.02 GiB
+[RBER s19] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER s19] upd  25 execs   616 | train 0.173/0.329 held 0.099/0.269 entropy 0.29 254s
+[RBER s19] upd  50 execs  1390 | train 0.224/0.329 held 0.148/0.269 entropy 0.16 402s
+[RBER s19] upd  75 execs  2121 | train 0.283/0.329 held 0.104/0.269 entropy 0.12 554s
+[RBER s19] upd 100 execs  2903 | train 0.296/0.329 held 0.154/0.269 entropy 0.07 671s
+[RBER s19] upd 125 execs  3691 | train 0.296/0.329 held 0.110/0.269 entropy 0.04 772s
+[RBER s19] upd 150 execs  4482 | train 0.300/0.329 held 0.120/0.269 entropy 0.03 825s
+[RBER s19] upd 175 execs  5279 | train 0.300/0.329 held 0.113/0.269 entropy 0.02 882s
+[RBER s19] upd 200 execs  6076 | train 0.300/0.329 held 0.118/0.269 entropy 0.01 927s
+[RBER s19] upd 225 execs  6874 | train 0.300/0.329 held 0.123/0.269 entropy 0.01 982s
+[RBER s19] upd 250 execs  7674 | train 0.300/0.329 held 0.123/0.269 entropy 0.01 1009s
+GPU memory after run: 0.02 GiB
+[RBER-LOO s19] upd   0 execs     0 | train 0.079/0.329 held 0.073/0.269 entropy 1.28 10s
+[RBER-LOO s19] upd  25 execs   616 | train 0.218/0.329 held 0.110/0.269 entropy 0.42 268s
+[RBER-LOO s19] upd  50 execs  1365 | train 0.305/0.329 held 0.156/0.269 entropy 0.13 535s
+[RBER-LOO s19] upd  75 execs  2147 | train 0.298/0.329 held 0.136/0.269 entropy 0.16 796s
+[RBER-LOO s19] upd 100 execs  2919 | train 0.316/0.329 held 0.095/0.269 entropy 0.10 1056s
+[RBER-LOO s19] upd 125 execs  3717 | train 0.320/0.329 held 0.134/0.269 entropy 0.05 1316s
+[RBER-LOO s19] upd 150 execs  4503 | train 0.320/0.329 held 0.126/0.269 entropy 0.03 1574s
+[RBER-LOO s19] upd 175 execs  5288 | train 0.320/0.329 held 0.135/0.269 entropy 0.03 1824s
+[RBER-LOO s19] upd 200 execs  6084 | train 0.320/0.329 held 0.126/0.269 entropy 0.02 2067s
+[RBER-LOO s19] upd 225 execs  6883 | train 0.320/0.329 held 0.150/0.269 entropy 0.02 2315s
+[RBER-LOO s19] upd 250 execs  7682 | train 0.320/0.329 held 0.109/0.269 entropy 0.01 2557s
+GPU memory after run: 0.02 GiB

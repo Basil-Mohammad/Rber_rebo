@@ -539,7 +539,7 @@ def llm_report():
         e = tests.get("ext", {})
         f.write("\\newcommand{\\LLMextReady}{" + ("1" if e else "0") + "}\n")
         if e:
-            fp2 = lambda p: "<10^{-4}" if p < 1e-4 else f"={p:.3f}"
+            fp2 = lambda p: "<10^{-4}" if p < 1e-4 else (f"={p:.4f}" if p < 0.001 else f"={p:.3f}")
             f.write(f"\\newcommand{{\\LLMextN}}{{{e['H12']['n']}}}\n\\newcommand{{\\LLMhTwelveD}}{{{e['H12']['d']:+.3f}}}\n"
                     f"\\newcommand{{\\LLMhTwelveCI}}{{[{e['H12']['ci'][0]:+.3f}, {e['H12']['ci'][1]:+.3f}]}}\n"
                     f"\\newcommand{{\\LLMhTwelveP}}{{{fp2(e['H12']['p'])}}}\n\\newcommand{{\\LLMhTwelveWins}}{{{e['H12']['wins']}}}\n"

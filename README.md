@@ -56,7 +56,8 @@ All values are normalized to the optimum; the table shows means, and `make_repor
 | H9: RBER-C removes the interaction bias floor | supported (final success above EXEC at every δ ≤ 0.5) |
 | H10: RBER-LOO > all four stronger baselines | supported (16/16 tests, Holm p < 1e-4) |
 | H11: RBER-C costs ≤ 0.01 AUC without interactions | not supported (cost 0.015–0.020) |
-| H12–H13: LLM, 20 seeds | Kaggle sessions D–F |
+| H12: LLM, 20 seeds, RBER-LOO AUC > EXEC | **supported**: +0.172 [+0.113, +0.231], p = 0.0001, ahead in 16/20 seeds |
+| H13: LLM held-out success | RBER-LOO +0.087 (p = 0.08), RBER +0.025 (p = 0.43): not significant |
 
 ```bash
 python scripts/run_cpu.py ext_tune && python scripts/run_cpu.py ext_main      # also: ext_interaction, ext_horizon, ext_kappa
